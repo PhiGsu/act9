@@ -58,6 +58,12 @@ class DatabaseHelper {
       ''');
   }
 
+  // Helper methods
+  // Inserts a row in the database where each key in the
+  //Map is a column name
+  // and the value is the column value. The return value
+  //is the id of the
+  // inserted row.
 // Helper methods
 // Inserts a row in the database where each key in the
 //Map is a column name
