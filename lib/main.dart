@@ -81,7 +81,11 @@ class _ScreenOneState extends State<ScreenOne> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => ScreenTwo(dbHelper: widget.dbHelper)),
+                  builder: (context) => ScreenTwo(
+                        dbHelper: widget.dbHelper,
+                        folder: Folder(id: 0, name: '', time: DateTime.now()), /* Replace with actual folder*/
+                        cards: [], /* Replace with actual card*/
+                      )),
             );
           },
           child: Text('Go to Cards Screen for Each Folder'),
@@ -93,8 +97,14 @@ class _ScreenOneState extends State<ScreenOne> {
 
 class ScreenTwo extends StatefulWidget {
   final DatabaseHelper dbHelper;
+  final Folder folder;
+  final List<DeckCard> cards;
 
-  const ScreenTwo({super.key, required this.dbHelper});
+  const ScreenTwo(
+      {super.key,
+      required this.dbHelper,
+      required this.folder,
+      required this.cards});
 
   @override
   State<ScreenTwo> createState() => _ScreenTwoState();
@@ -110,13 +120,39 @@ class _ScreenTwoState extends State<ScreenTwo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Cards Screen for Each Folder')),
-      body: Center(
-        child: ElevatedButton(
+      appBar: AppBar(
+        title: Text(widget.folder.name),
+        centerTitle: true,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context);
           },
-          child: Text('Back to Folders Screen'),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Expanded(
+          child: ListView.builder(
+            itemCount: widget.cards.length,
+            itemBuilder: (context, index) {
+              final card = widget.cards[index];
+              return ListTile(
+                title: Text('${card.name} of ${card.suit}'),
+                subtitle: Image.network(card.image),
+                trailing: IconButton(
+                  icon: Icon(Icons.delete, color: Colors.red),
+                  onPressed: () {
+                    setState(() {
+                      widget.cards.removeAt(index);
+                    });
+                    widget.dbHelper
+                        .update('Cards', {...card.toMap(), 'folder_id': null});
+                  },
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
