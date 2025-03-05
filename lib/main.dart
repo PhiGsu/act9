@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'helper.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
+
+  final DatabaseHelper dbHelper = DatabaseHelper();
 
   @override
   Widget build(BuildContext context) {
@@ -15,13 +18,27 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      //
-      home: ScreenOne(),
+      home: ScreenOne(dbHelper: dbHelper),
     );
   }
 }
 
-class ScreenOne extends StatelessWidget {
+class ScreenOne extends StatefulWidget {
+  final DatabaseHelper dbHelper;
+
+  const ScreenOne({super.key, required this.dbHelper});
+
+  @override
+  State<ScreenOne> createState() => _ScreenOneState();
+}
+
+class _ScreenOneState extends State<ScreenOne> {
+  @override
+  void initState() {
+    super.initState();
+    widget.dbHelper.init();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,7 +49,8 @@ class ScreenOne extends StatelessWidget {
             // Navigate to the second screen
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => ScreenTwo()),
+              MaterialPageRoute(
+                  builder: (context) => ScreenTwo(dbHelper: widget.dbHelper)),
             );
           },
           child: Text('Go to Cards Screen for Each Folder'),
@@ -42,7 +60,22 @@ class ScreenOne extends StatelessWidget {
   }
 }
 
-class ScreenTwo extends StatelessWidget {
+class ScreenTwo extends StatefulWidget {
+  final DatabaseHelper dbHelper;
+
+  const ScreenTwo({super.key, required this.dbHelper});
+
+  @override
+  State<ScreenTwo> createState() => _ScreenTwoState();
+}
+
+class _ScreenTwoState extends State<ScreenTwo> {
+  @override
+  void initState() {
+    super.initState();
+    widget.dbHelper.init();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,7 +83,6 @@ class ScreenTwo extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () {
-            // Navigate back to the first screen
             Navigator.pop(context);
           },
           child: Text('Back to Folders Screen'),
