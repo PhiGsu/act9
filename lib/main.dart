@@ -40,19 +40,31 @@ class _ScreenOneState extends State<ScreenOne> {
   void initState() {
     super.initState();
     widget.dbHelper.init();
-    _getCards();
-    _getFolders();
+    Future.wait([_getCards(), _getFolders()]).then((_) {
+      setState(() {
+        // Get the card count for each folder
+        for (var folder in folders) {
+          folder.count =
+              cards.where((card) => card.folderId == folder.id).length;
+        }
+
+        // Filter out the cards that have already been assigned to a folder
+        cards = cards.where((card) => card.folderId == null).toList();
+      });
+    });
   }
 
-  void _getCards() async {
-    List<Map<String, dynamic>> cardRows = await widget.dbHelper.queryAllRows('Cards');
+  Future<void> _getCards() async {
+    List<Map<String, dynamic>> cardRows =
+        await widget.dbHelper.queryAllRows('Cards');
     setState(() {
       cards = cardRows.map(DeckCard.fromMap).toList();
     });
   }
 
-  void _getFolders() async {
-    List<Map<String, dynamic>> folderRows = await widget.dbHelper.queryAllRows('Folders');
+  Future<void> _getFolders() async {
+    List<Map<String, dynamic>> folderRows =
+        await widget.dbHelper.queryAllRows('Folders');
     setState(() {
       folders = folderRows.map(Folder.fromMap).toList();
     });
@@ -115,7 +127,7 @@ class DeckCard {
   final String name;
   final String suit;
   final String image;
-  final int folderId;
+  final int? folderId;
 
   DeckCard({
     required this.name,
@@ -138,7 +150,7 @@ class DeckCard {
       name: map['name'],
       suit: map['suit'],
       image: map['image'],
-      folderId: map['folder_id'],
+      folderId: map['folder_id'] != null ? map['folder_id'] as int : null,
     );
   }
 }
@@ -147,6 +159,8 @@ class Folder {
   final int id;
   final String name;
   final DateTime time;
+
+  int count = 0;
 
   Folder({
     required this.id,
