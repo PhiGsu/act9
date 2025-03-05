@@ -33,10 +33,29 @@ class ScreenOne extends StatefulWidget {
 }
 
 class _ScreenOneState extends State<ScreenOne> {
+  List<DeckCard> cards = [];
+  List<Folder> folders = [];
+
   @override
   void initState() {
     super.initState();
     widget.dbHelper.init();
+    _getCards();
+    _getFolders();
+  }
+
+  void _getCards() async {
+    List<Map<String, dynamic>> cardRows = await widget.dbHelper.queryAllRows('Cards');
+    setState(() {
+      cards = cardRows.map(DeckCard.fromMap).toList();
+    });
+  }
+
+  void _getFolders() async {
+    List<Map<String, dynamic>> folderRows = await widget.dbHelper.queryAllRows('Folders');
+    setState(() {
+      folders = folderRows.map(Folder.fromMap).toList();
+    });
   }
 
   @override
@@ -88,6 +107,66 @@ class _ScreenTwoState extends State<ScreenTwo> {
           child: Text('Back to Folders Screen'),
         ),
       ),
+    );
+  }
+}
+
+class DeckCard {
+  final String name;
+  final String suit;
+  final String image;
+  final int folderId;
+
+  DeckCard({
+    required this.name,
+    required this.suit,
+    required this.image,
+    required this.folderId,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'suit': suit,
+      'image': image,
+      'folder_id': folderId,
+    };
+  }
+
+  factory DeckCard.fromMap(Map<String, dynamic> map) {
+    return DeckCard(
+      name: map['name'],
+      suit: map['suit'],
+      image: map['image'],
+      folderId: map['folder_id'],
+    );
+  }
+}
+
+class Folder {
+  final int id;
+  final String name;
+  final DateTime time;
+
+  Folder({
+    required this.id,
+    required this.name,
+    required this.time,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'time': time,
+    };
+  }
+
+  factory Folder.fromMap(Map<String, dynamic> map) {
+    return Folder(
+      id: map['id'],
+      name: map['name'],
+      time: map['time'],
     );
   }
 }
