@@ -64,7 +64,6 @@ class DatabaseHelper {
   // and the value is the column value. The return value
   //is the id of the
   // inserted row.
-  Future<int> insert(Map<String, dynamic> row) async {
 // Helper methods
 // Inserts a row in the database where each key in the
 //Map is a column name
